@@ -1,6 +1,5 @@
 import type { Continent, CountryEpidemicStat, EpidemicKpi } from '../types/dashboard';
 
-// Mock-дані глобальних KPI показників (імітація endpoint /v3/covid-19/all)
 export const mockKpiData: EpidemicKpi[] = [
   {
     id: 'kpi-cases',
@@ -36,7 +35,6 @@ export const mockKpiData: EpidemicKpi[] = [
   },
 ];
 
-// Категорії фільтрації (континенти)
 export const mockContinents: Continent[] = [
   'Всі',
   'Європа',
@@ -46,7 +44,6 @@ export const mockContinents: Continent[] = [
   'Африка',
 ];
 
-// Mock-дані країн (імітація endpoint /v3/covid-19/countries)
 export const mockCountriesData: CountryEpidemicStat[] = [
   {
     id: 'UA',

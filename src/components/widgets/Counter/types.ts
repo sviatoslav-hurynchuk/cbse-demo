@@ -4,5 +4,5 @@ export interface CounterProps {
   step?: number;
   min?: number;
   max?: number;
-  unit?: string; // наприклад, 'днів' (період історичного графіка)
+  unit?: string;
 }
