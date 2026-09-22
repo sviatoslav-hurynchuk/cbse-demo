@@ -5,10 +5,9 @@ import { mockContinents, mockCountriesData, mockKpiData } from './data/mockData'
 export function App() {
   return (
     <DashboardLayout
-      title="Епідеміологічний дашборд (disease.sh)"
-      subtitle="Лабораторна робота: Каркас аналітичного дашборду для моніторингу пандемії"
+      title="disease.sh dashboard"
+      subtitle="Lab01"
     >
-      {/* Секція 1: Глобальні KPI-показники (Усього випадків, Одужань, Летальних, Активних) */}
       <section>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Глобальні показники</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -25,7 +24,6 @@ export function App() {
         </div>
       </section>
 
-      {/* Секція 2: Керування відображенням (Степпер періоду для графіка + Перемикач режиму) */}
       <section>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Параметри аналітики</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -45,7 +43,6 @@ export function App() {
         </div>
       </section>
 
-      {/* Секція 3: Статистика по країнах (Фільтрований список / Таблиця) */}
       <section>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Деталізація за регіонами</h2>
         <FilteredList
