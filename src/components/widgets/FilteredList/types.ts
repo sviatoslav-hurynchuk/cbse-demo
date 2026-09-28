@@ -5,3 +5,15 @@ export interface FilteredListProps {
   countries: CountryEpidemicStat[];
   continents: Continent[];
 }
+
+export interface CountryTableProps {
+  countries: CountryEpidemicStat[];
+}
+
+export interface FilterToolbarProps {
+  title: string;
+  totalLoaded: number;
+  continents: Continent[];
+  selectedContinent: string;
+  onContinentChange: (continent: string) => void;
+}
