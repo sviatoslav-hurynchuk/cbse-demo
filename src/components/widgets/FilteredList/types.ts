@@ -23,3 +23,11 @@ export interface FilterToolbarProps {
   selectedContinent: string;
   onContinentChange: (continent: string) => void;
 }
+
+export interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+}

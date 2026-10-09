@@ -4,6 +4,7 @@ import type { CountryEpidemicStat } from '../../../types/dashboard';
 import { fetchCountries } from '../../../services/diseaseApi';
 import { FilterToolbar } from './FilterToolbar';
 import { CountryTable } from './CountryTable';
+import { Pagination } from './Pagination';
 import { Button } from '../../common/Button';
 
 export const FilteredList = ({
@@ -15,6 +16,9 @@ export const FilteredList = ({
   const [selectedContinent, setSelectedContinent] = useState<string>('Всі');
   const [sortField, setSortField] = useState<SortField>('cases');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const pageSize = 15;
 
   const loadData = async () => {
     setIsLoading(true);
@@ -38,6 +42,11 @@ export const FilteredList = ({
     loadData();
   }, []);
 
+  const handleContinentChange = (continent: string) => {
+    setSelectedContinent(continent);
+    setCurrentPage(1);
+  };
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
@@ -45,6 +54,7 @@ export const FilteredList = ({
       setSortField(field);
       setSortDirection('desc');
     }
+    setCurrentPage(1);
   };
 
   const availableContinents = [
@@ -64,6 +74,10 @@ export const FilteredList = ({
     return (a[sortField] - b[sortField]) * modifier;
   });
 
+  const totalPages = Math.max(1, Math.ceil(sortedCountries.length / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedCountries = sortedCountries.slice(startIndex, startIndex + pageSize);
+
   return (
     <div className="p-5 rounded-xl border border-gray-200 shadow-xs bg-white">
       <FilterToolbar
@@ -71,7 +85,7 @@ export const FilteredList = ({
         totalLoaded={sortedCountries.length}
         continents={availableContinents}
         selectedContinent={selectedContinent}
-        onContinentChange={setSelectedContinent}
+        onContinentChange={handleContinentChange}
       />
 
       {isLoading && (
@@ -100,12 +114,21 @@ export const FilteredList = ({
       )}
 
       {!isLoading && !error && countries.length > 0 && (
-        <CountryTable
-          countries={sortedCountries}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          onSort={handleSort}
-        />
+        <>
+          <CountryTable
+            countries={paginatedCountries}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={sortedCountries.length}
+            onPageChange={setCurrentPage}
+          />
+        </>
       )}
     </div>
   );
