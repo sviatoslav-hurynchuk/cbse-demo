@@ -1,17 +1,30 @@
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { Counter, FilteredList, KpiCard, Toggle } from './components/widgets';
-import { mockContinents, mockCountriesData, mockKpiData } from './data/mockData';
+import { mockKpiData } from './data/mockData';
+import { fetchGlobalKpi } from './services/diseaseApi';
+import type { EpidemicKpi } from './types/dashboard';
 
 export function App() {
+  const [kpiData, setKpiData] = useState<EpidemicKpi[]>(mockKpiData);
+
+  useEffect(() => {
+    fetchGlobalKpi()
+      .then((data) => {
+        setKpiData(data);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <DashboardLayout
       title="disease.sh dashboard"
-      subtitle="Lab01"
+      subtitle="Lab02"
     >
       <section>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Глобальні показники</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {mockKpiData.map((kpi) => (
+          {kpiData.map((kpi) => (
             <KpiCard
               key={kpi.id}
               title={kpi.title}
@@ -45,11 +58,7 @@ export function App() {
 
       <section>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Деталізація за регіонами</h2>
-        <FilteredList
-          title="Країни світу"
-          countries={mockCountriesData}
-          continents={mockContinents}
-        />
+        <FilteredList title="Країни світу" />
       </section>
     </DashboardLayout>
   );

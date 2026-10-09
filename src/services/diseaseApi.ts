@@ -27,7 +27,7 @@ export async function fetchCountries(): Promise<CountryEpidemicStat[]> {
         cases: item.cases,
         recovered: item.recovered,
         deaths: item.deaths,
-        flag: item.countryInfo?.flag, // посилання на реальне зображення прапора з disease.sh
+        flag: item.countryInfo?.flag,
     }));
 }
 
