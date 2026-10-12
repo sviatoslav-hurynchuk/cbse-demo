@@ -2,11 +2,32 @@ import { useState, useEffect } from 'react';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { Counter, FilteredList, KpiCard, Toggle } from './components/widgets';
 import { mockKpiData } from './data/mockData';
-import { fetchGlobalKpi } from './services/diseaseApi';
-import type { EpidemicKpi } from './types/dashboard';
+import { fetchGlobalKpi, fetchCountries } from './services/diseaseApi';
+import type { EpidemicKpi, CountryEpidemicStat } from './types/dashboard';
 
 export function App() {
   const [kpiData, setKpiData] = useState<EpidemicKpi[]>(mockKpiData);
+  const [countries, setCountries] = useState<CountryEpidemicStat[]>([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState<boolean>(true);
+  const [countriesError, setCountriesError] = useState<string | null>(null);
+
+  const loadCountries = async () => {
+    setIsLoadingCountries(true);
+    setCountriesError(null);
+
+    try {
+      const data = await fetchCountries();
+      setCountries(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setCountriesError(err.message);
+      } else {
+        setCountriesError('Помилка завантаження даних');
+      }
+    } finally {
+      setIsLoadingCountries(false);
+    }
+  };
 
   useEffect(() => {
     fetchGlobalKpi()
@@ -14,6 +35,8 @@ export function App() {
         setKpiData(data);
       })
       .catch(() => {});
+
+    void loadCountries();
   }, []);
 
   return (
@@ -58,7 +81,13 @@ export function App() {
 
       <section>
         <h2 className="text-lg font-semibold text-gray-800 mb-3">Деталізація за регіонами</h2>
-        <FilteredList title="Країни світу" />
+        <FilteredList
+          title="Країни світу"
+          countries={countries}
+          isLoading={isLoadingCountries}
+          error={countriesError}
+          onRetry={loadCountries}
+        />
       </section>
     </DashboardLayout>
   );

@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { FilteredListProps, SortDirection, SortField } from './types';
-import type { CountryEpidemicStat } from '../../../types/dashboard';
-import { fetchCountries } from '../../../services/diseaseApi';
 import { FilterToolbar } from './FilterToolbar';
 import { CountryTable } from './CountryTable';
 import { Pagination } from './Pagination';
@@ -9,38 +7,17 @@ import { Button } from '../../common/Button';
 
 export const FilteredList = ({
   title = 'Статистика по країнах (disease.sh)',
+  countries = [],
+  isLoading = false,
+  error = null,
+  onRetry,
 }: FilteredListProps) => {
-  const [countries, setCountries] = useState<CountryEpidemicStat[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedContinent, setSelectedContinent] = useState<string>('Всі');
   const [sortField, setSortField] = useState<SortField>('cases');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const pageSize = 15;
-
-  const loadData = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await fetchCountries();
-      setCountries(data);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Помилка завантаження даних');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   const handleContinentChange = (continent: string) => {
     setSelectedContinent(continent);
@@ -101,9 +78,11 @@ export const FilteredList = ({
             <p className="font-semibold text-sm">Сталася помилка під час запиту</p>
             <p className="text-xs text-rose-600">{error}</p>
           </div>
-          <Button variant="outline" onClick={loadData} className="text-xs shrink-0">
-            Спробувати знову
-          </Button>
+          {onRetry && (
+            <Button variant="outline" onClick={onRetry} className="text-xs shrink-0">
+              Спробувати знову
+            </Button>
+          )}
         </div>
       )}
 
