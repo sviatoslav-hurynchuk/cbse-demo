@@ -7,6 +7,9 @@ export interface FilteredListProps {
   title?: string;
   countries?: CountryEpidemicStat[];
   continents?: Continent[];
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export interface CountryTableProps {
