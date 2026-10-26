@@ -27,9 +27,9 @@ export interface CountryTableProps {
 export interface FilterToolbarProps {
   title: string;
   totalLoaded: number;
-  continents: string[];
-  selectedContinent: string;
-  onContinentChange: (continent: string) => void;
+  continents?: string[];
+  selectedContinent?: string;
+  onContinentChange?: (continent: string) => void;
 }
 
 export interface PaginationProps {

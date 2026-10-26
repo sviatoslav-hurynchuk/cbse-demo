@@ -11,31 +11,18 @@ export const FilteredList = ({
   isLoading = false,
   error = null,
   onRetry,
-  selectedContinent: controlledContinent,
-  onContinentChange: controlledContinentChange,
   sortField: controlledSortField,
   sortDirection: controlledSortDirection,
   onSort: controlledSort,
 }: FilteredListProps) => {
-  const [internalContinent, setInternalContinent] = useState<string>('Всі');
   const [internalSortField, setInternalSortField] = useState<SortField>('cases');
   const [internalSortDirection, setInternalSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const pageSize = 15;
 
-  const selectedContinent = controlledContinent ?? internalContinent;
   const sortField = controlledSortField ?? internalSortField;
   const sortDirection = controlledSortDirection ?? internalSortDirection;
-
-  const handleContinentChange = (continent: string) => {
-    if (controlledContinentChange) {
-      controlledContinentChange(continent);
-    } else {
-      setInternalContinent(continent);
-    }
-    setCurrentPage(1);
-  };
 
   const handleSort = (field: SortField) => {
     if (controlledSort) {
@@ -51,20 +38,9 @@ export const FilteredList = ({
     setCurrentPage(1);
   };
 
-  const availableContinents = [
-    'Всі',
-    ...Array.from(new Set(countries.map((c) => c.continent).filter(Boolean))),
-  ];
-
-  const filteredCountries = controlledContinent
-    ? countries
-    : selectedContinent === 'Всі'
-      ? countries
-      : countries.filter((c) => c.continent === selectedContinent);
-
   const sortedCountries = controlledSort
-    ? filteredCountries
-    : [...filteredCountries].sort((a, b) => {
+    ? countries
+    : [...countries].sort((a, b) => {
         const modifier = sortDirection === 'asc' ? 1 : -1;
         if (sortField === 'country') {
           return a.country.localeCompare(b.country) * modifier;
@@ -82,9 +58,6 @@ export const FilteredList = ({
       <FilterToolbar
         title={title}
         totalLoaded={sortedCountries.length}
-        continents={availableContinents}
-        selectedContinent={selectedContinent}
-        onContinentChange={handleContinentChange}
       />
 
       {isLoading && (

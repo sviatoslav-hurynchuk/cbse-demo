@@ -178,8 +178,6 @@ export function App() {
           sortField={filters.sortBy}
           sortDirection={filters.sortDirection}
           onSort={handleTableSort}
-          selectedContinent={filters.continent}
-          onContinentChange={(continent) => handleFilterChange('continent', continent)}
         />
       </section>
 
