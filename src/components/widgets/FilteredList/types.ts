@@ -10,6 +10,11 @@ export interface FilteredListProps {
   isLoading?: boolean;
   error?: string | null;
   onRetry?: () => void;
+  selectedContinent?: string;
+  onContinentChange?: (continent: string) => void;
+  sortField?: SortField;
+  sortDirection?: SortDirection;
+  onSort?: (field: SortField) => void;
 }
 
 export interface CountryTableProps {

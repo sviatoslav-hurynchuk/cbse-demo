@@ -11,25 +11,42 @@ export const FilteredList = ({
   isLoading = false,
   error = null,
   onRetry,
+  selectedContinent: controlledContinent,
+  onContinentChange: controlledContinentChange,
+  sortField: controlledSortField,
+  sortDirection: controlledSortDirection,
+  onSort: controlledSort,
 }: FilteredListProps) => {
-  const [selectedContinent, setSelectedContinent] = useState<string>('Всі');
-  const [sortField, setSortField] = useState<SortField>('cases');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [internalContinent, setInternalContinent] = useState<string>('Всі');
+  const [internalSortField, setInternalSortField] = useState<SortField>('cases');
+  const [internalSortDirection, setInternalSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   const pageSize = 15;
 
+  const selectedContinent = controlledContinent ?? internalContinent;
+  const sortField = controlledSortField ?? internalSortField;
+  const sortDirection = controlledSortDirection ?? internalSortDirection;
+
   const handleContinentChange = (continent: string) => {
-    setSelectedContinent(continent);
+    if (controlledContinentChange) {
+      controlledContinentChange(continent);
+    } else {
+      setInternalContinent(continent);
+    }
     setCurrentPage(1);
   };
 
   const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    if (controlledSort) {
+      controlledSort(field);
     } else {
-      setSortField(field);
-      setSortDirection('desc');
+      if (internalSortField === field) {
+        setInternalSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      } else {
+        setInternalSortField(field);
+        setInternalSortDirection('desc');
+      }
     }
     setCurrentPage(1);
   };
@@ -39,20 +56,25 @@ export const FilteredList = ({
     ...Array.from(new Set(countries.map((c) => c.continent).filter(Boolean))),
   ];
 
-  const filteredCountries = selectedContinent === 'Всі'
+  const filteredCountries = controlledContinent
     ? countries
-    : countries.filter((c) => c.continent === selectedContinent);
+    : selectedContinent === 'Всі'
+      ? countries
+      : countries.filter((c) => c.continent === selectedContinent);
 
-  const sortedCountries = [...filteredCountries].sort((a, b) => {
-    const modifier = sortDirection === 'asc' ? 1 : -1;
-    if (sortField === 'country') {
-      return a.country.localeCompare(b.country) * modifier;
-    }
-    return (a[sortField] - b[sortField]) * modifier;
-  });
+  const sortedCountries = controlledSort
+    ? filteredCountries
+    : [...filteredCountries].sort((a, b) => {
+        const modifier = sortDirection === 'asc' ? 1 : -1;
+        if (sortField === 'country') {
+          return a.country.localeCompare(b.country) * modifier;
+        }
+        return (a[sortField] - b[sortField]) * modifier;
+      });
 
   const totalPages = Math.max(1, Math.ceil(sortedCountries.length / pageSize));
-  const startIndex = (currentPage - 1) * pageSize;
+  const safePage = Math.min(currentPage, totalPages);
+  const startIndex = (safePage - 1) * pageSize;
   const paginatedCountries = sortedCountries.slice(startIndex, startIndex + pageSize);
 
   return (
@@ -101,7 +123,7 @@ export const FilteredList = ({
             onSort={handleSort}
           />
           <Pagination
-            currentPage={currentPage}
+            currentPage={safePage}
             totalPages={totalPages}
             pageSize={pageSize}
             totalItems={sortedCountries.length}
