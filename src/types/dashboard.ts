@@ -20,3 +20,20 @@ export interface CountryEpidemicStat {
   deaths: number;
   flag?: string;
 }
+
+export interface CountryDetailStat extends CountryEpidemicStat {
+  population: number;
+  todayCases: number;
+  todayDeaths: number;
+  todayRecovered: number;
+  active: number;
+  critical: number;
+  casesPerOneMillion: number;
+  deathsPerOneMillion: number;
+  tests: number;
+  testsPerOneMillion: number;
+  iso2?: string;
+  iso3?: string;
+  lat?: number;
+  long?: number;
+}
