@@ -7,7 +7,7 @@ export interface UseFetchResult<T> {
   refetch: () => void;
 }
 
-export function useFetch<T>(fetcher: () => Promise<T>): UseFetchResult<T> {
+export function useFetch<T>(fetcher: (signal?: AbortSignal) => Promise<T>): UseFetchResult<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,27 +18,28 @@ export function useFetch<T>(fetcher: () => Promise<T>): UseFetchResult<T> {
   }, []);
 
   useEffect(() => {
-    let isCancelled = false;
+    const controller = new AbortController();
 
     const run = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const result = await fetcher();
-        if (!isCancelled) {
+        const result = await fetcher(controller.signal);
+        if (!controller.signal.aborted) {
           setData(result);
         }
       } catch (err: unknown) {
-        if (!isCancelled) {
-          if (err instanceof Error) {
-            setError(err.message);
-          } else {
-            setError('Помилка завантаження даних');
-          }
+        if (err instanceof Error && (err.name === 'AbortError' || controller.signal.aborted)) {
+          return;
+        }
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Помилка завантаження даних');
         }
       } finally {
-        if (!isCancelled) {
+        if (!controller.signal.aborted) {
           setLoading(false);
         }
       }
@@ -47,7 +48,7 @@ export function useFetch<T>(fetcher: () => Promise<T>): UseFetchResult<T> {
     void run();
 
     return () => {
-      isCancelled = true;
+      controller.abort();
     };
   }, [fetcher, reloadKey]);
 

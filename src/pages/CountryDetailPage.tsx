@@ -7,11 +7,11 @@ import { Button } from '../components/common/Button';
 export function CountryDetailPage() {
   const { code } = useParams<{ code: string }>();
 
-  const fetcher = useCallback(async () => {
+  const fetcher = useCallback(async (signal?: AbortSignal) => {
     if (!code) {
       throw new Error('Код країни не вказано в маршруті');
     }
-    return fetchCountryDetails(code);
+    return fetchCountryDetails(code, signal);
   }, [code]);
 
   const { data: country, loading, error, refetch } = useFetch(fetcher);

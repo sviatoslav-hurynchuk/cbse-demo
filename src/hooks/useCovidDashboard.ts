@@ -4,6 +4,7 @@ import { useDebounce } from './useDebounce';
 import { useFetch } from './useFetch';
 import type { SortField } from '../components/widgets/FilteredList/types';
 import type { FilterFormValues } from '../components/widgets/FilterForm/types';
+import { validateFilters } from '../components/widgets/FilterForm/validation';
 import type { EpidemicKpi } from '../types/dashboard';
 
 const initialFilters: FilterFormValues = {
@@ -17,6 +18,7 @@ const initialFilters: FilterFormValues = {
 export function useCovidDashboard() {
   const [filters, setFilters] = useState<FilterFormValues>(initialFilters);
 
+  const errors = validateFilters(filters);
   const debouncedSearch = useDebounce(filters.search, 400);
 
   const {
@@ -59,6 +61,8 @@ export function useCovidDashboard() {
     ...Array.from(new Set(allCountries.map((c) => c.continent).filter(Boolean))),
   ];
 
+  const hasSearchError = Boolean(errors.search);
+
   const filteredCountries = allCountries.filter((c) => {
     if (filters.continent !== 'Всі' && c.continent !== filters.continent) {
       return false;
@@ -67,6 +71,7 @@ export function useCovidDashboard() {
       return false;
     }
     if (
+      !hasSearchError &&
       debouncedSearch.trim() &&
       !c.country.toLowerCase().includes(debouncedSearch.toLowerCase().trim())
     ) {
@@ -91,7 +96,7 @@ export function useCovidDashboard() {
   const isFiltered =
     filters.continent !== 'Всі' ||
     filters.minCases > 0 ||
-    debouncedSearch.trim() !== '';
+    (!hasSearchError && debouncedSearch.trim() !== '');
 
   const kpiCards: EpidemicKpi[] = [
     {
@@ -130,6 +135,7 @@ export function useCovidDashboard() {
 
   return {
     filters,
+    errors,
     kpiCards,
     sortedCountries,
     availableContinents,

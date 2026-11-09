@@ -52,7 +52,6 @@ export const Header = ({ title, subtitle }: HeaderProps) => {
             aria-label="Змінити тему"
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
             <span className="hidden sm:inline">{theme === 'dark' ? 'Світла тема' : 'Темна тема'}</span>
           </Button>
         </div>

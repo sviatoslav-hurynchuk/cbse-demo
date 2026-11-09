@@ -8,8 +8,14 @@ export interface FilterFormValues {
   minCases: number;
 }
 
+export interface FilterFormErrors {
+  search?: string;
+  minCases?: string;
+}
+
 export interface FilterFormProps {
   values: FilterFormValues;
+  errors?: FilterFormErrors;
   continents: string[];
   onChange: <K extends keyof FilterFormValues>(field: K, value: FilterFormValues[K]) => void;
   onReset: () => void;
