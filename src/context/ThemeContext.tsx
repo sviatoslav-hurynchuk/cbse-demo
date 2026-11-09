@@ -15,7 +15,11 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   });
 
   useEffect(() => {
-    const root = document.documentElement;
+    const root = document.getElementById('root');
+    if (!root) {
+      return;
+    }
+
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {

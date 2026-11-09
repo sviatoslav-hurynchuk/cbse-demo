@@ -1,4 +1,4 @@
-import type { CountryEpidemicStat, CountryDetailStat, EpidemicKpi } from '../types/dashboard';
+import type { CountryEpidemicStat, CountryDetailStat } from '../types/dashboard';
 
 const BASE_URL = 'https://disease.sh/v3/covid-19';
 
@@ -37,8 +37,8 @@ interface DiseaseShCountryRaw {
   testsPerOneMillion?: number;
 }
 
-export async function fetchCountries(): Promise<CountryEpidemicStat[]> {
-  const response = await fetch(`${BASE_URL}/countries`);
+export async function fetchCountries(signal?: AbortSignal): Promise<CountryEpidemicStat[]> {
+  const response = await fetch(`${BASE_URL}/countries`, { signal });
 
   if (!response.ok) {
     throw new Error(`Помилка завантаження країн: ${response.status} ${response.statusText}`);
@@ -57,8 +57,8 @@ export async function fetchCountries(): Promise<CountryEpidemicStat[]> {
   }));
 }
 
-export async function fetchCountryDetails(code: string): Promise<CountryDetailStat> {
-  const response = await fetch(`${BASE_URL}/countries/${encodeURIComponent(code)}?strict=true`);
+export async function fetchCountryDetails(code: string, signal?: AbortSignal): Promise<CountryDetailStat> {
+  const response = await fetch(`${BASE_URL}/countries/${encodeURIComponent(code)}?strict=true`, { signal });
 
   if (!response.ok) {
     if (response.status === 404) {
@@ -92,49 +92,4 @@ export async function fetchCountryDetails(code: string): Promise<CountryDetailSt
     lat: item.countryInfo?.lat,
     long: item.countryInfo?.long,
   };
-}
-
-export async function fetchGlobalKpi(): Promise<EpidemicKpi[]> {
-  const response = await fetch(`${BASE_URL}/all`);
-
-  if (!response.ok) {
-    throw new Error(`Помилка завантаження KPI: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  return [
-    {
-      id: 'kpi-cases',
-      title: 'Усього випадків',
-      value: (data.cases ?? 0).toLocaleString(),
-      change: `+${(data.todayCases || 0).toLocaleString()} сьогодні`,
-      type: 'cases',
-      isPositive: false,
-    },
-    {
-      id: 'kpi-recovered',
-      title: 'Усього одужань',
-      value: (data.recovered ?? 0).toLocaleString(),
-      change: `+${(data.todayRecovered || 0).toLocaleString()} сьогодні`,
-      type: 'recovered',
-      isPositive: true,
-    },
-    {
-      id: 'kpi-deaths',
-      title: 'Летальні випадки',
-      value: (data.deaths ?? 0).toLocaleString(),
-      change: `+${(data.todayDeaths || 0).toLocaleString()} сьогодні`,
-      type: 'deaths',
-      isPositive: false,
-    },
-    {
-      id: 'kpi-active',
-      title: 'Активні випадки',
-      value: (data.active ?? 0).toLocaleString(),
-      change: 'поточні хворі',
-      type: 'active',
-      isPositive: true,
-    },
-  ];
 }
