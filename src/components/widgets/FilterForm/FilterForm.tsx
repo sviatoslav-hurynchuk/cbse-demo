@@ -37,8 +37,7 @@ export const FilterForm = ({
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-base">Фільтри та параметри пошуку</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Керування вибіркою даних через контрольовану форму</p>
+          <h3 className="font-semibold text-gray-900 text-base">Фільтри та параметри пошуку</h3>
         </div>
         <Button
           type="button"
