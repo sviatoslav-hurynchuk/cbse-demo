@@ -7,8 +7,8 @@ export const FilterToolbar = ({
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h4 className="text-base font-semibold text-gray-800">{title}</h4>
-        <p className="text-xs text-gray-500 mt-0.5">
+        <h4 className="text-base font-semibold text-gray-800 dark:text-gray-100">{title}</h4>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
           Знайдено країн у вибірці: {totalLoaded}
         </p>
       </div>

@@ -16,10 +16,10 @@ export const Pagination = ({
   const endRange = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-100 pt-4 mt-3 text-sm">
-      <span className="text-xs text-gray-500">
-        Показано <span className="font-semibold text-gray-700">{startRange}–{endRange}</span> з{' '}
-        <span className="font-semibold text-gray-700">{totalItems}</span> країн
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-800 pt-4 mt-3 text-sm">
+      <span className="text-xs text-gray-500 dark:text-gray-400">
+        Показано <span className="font-semibold text-gray-700 dark:text-gray-200">{startRange}–{endRange}</span> з{' '}
+        <span className="font-semibold text-gray-700 dark:text-gray-200">{totalItems}</span> країн
       </span>
 
       <div className="flex items-center gap-2">
@@ -33,7 +33,7 @@ export const Pagination = ({
           ← Назад
         </Button>
 
-        <span className="text-xs font-medium text-gray-600 px-2">
+        <span className="text-xs font-medium text-gray-600 dark:text-gray-300 px-2">
           {currentPage} / {totalPages}
         </span>
 
