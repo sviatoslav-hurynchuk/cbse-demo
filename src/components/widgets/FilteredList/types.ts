@@ -15,6 +15,10 @@ export interface FilteredListProps {
   sortField?: SortField;
   sortDirection?: SortDirection;
   onSort?: (field: SortField) => void;
+  favorites?: string[];
+  onToggleFavorite?: (id: string) => void;
+  onlyFavorites?: boolean;
+  onToggleOnlyFavorites?: (val: boolean) => void;
 }
 
 export interface CountryTableProps {
@@ -22,11 +26,16 @@ export interface CountryTableProps {
   sortField: SortField;
   sortDirection: SortDirection;
   onSort: (field: SortField) => void;
+  favorites?: string[];
+  onToggleFavorite?: (id: string) => void;
 }
 
 export interface FilterToolbarProps {
   title: string;
   totalLoaded: number;
+  favoritesCount?: number;
+  onlyFavorites?: boolean;
+  onToggleOnlyFavorites?: () => void;
   continents?: string[];
   selectedContinent?: string;
   onContinentChange?: (continent: string) => void;

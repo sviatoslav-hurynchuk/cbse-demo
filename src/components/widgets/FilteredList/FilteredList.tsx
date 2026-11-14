@@ -10,7 +10,11 @@ import {
   selectIsLoading,
   selectError,
   selectFilters,
+  selectFavorites,
+  selectOnlyFavorites,
   setTableSort,
+  toggleFavorite,
+  setOnlyFavorites,
   fetchCountriesThunk,
 } from '../../../store/slices/dashboardSlice';
 
@@ -23,6 +27,10 @@ export const FilteredList = ({
   sortField: propSortField,
   sortDirection: propSortDirection,
   onSort: propOnSort,
+  favorites: propFavorites,
+  onToggleFavorite: propOnToggleFavorite,
+  onlyFavorites: propOnlyFavorites,
+  onToggleOnlyFavorites: propOnToggleOnlyFavorites,
 }: Partial<FilteredListProps> = {}) => {
   const dispatch = useAppDispatch();
 
@@ -30,6 +38,8 @@ export const FilteredList = ({
   const reduxIsLoading = useAppSelector(selectIsLoading);
   const reduxError = useAppSelector(selectError);
   const reduxFilters = useAppSelector(selectFilters);
+  const reduxFavorites = useAppSelector(selectFavorites);
+  const reduxOnlyFavorites = useAppSelector(selectOnlyFavorites);
 
   const countries = propCountries ?? reduxCountries;
   const isLoading = propIsLoading ?? reduxIsLoading;
@@ -37,6 +47,13 @@ export const FilteredList = ({
   const onRetry = propOnRetry ?? (() => dispatch(fetchCountriesThunk()));
   const sortField = propSortField ?? reduxFilters.sortBy;
   const sortDirection = propSortDirection ?? reduxFilters.sortDirection;
+  const favorites = propFavorites ?? reduxFavorites;
+  const onlyFavorites = propOnlyFavorites ?? reduxOnlyFavorites;
+
+  const handleToggleFavorite = propOnToggleFavorite ?? ((id: string) => dispatch(toggleFavorite(id)));
+  const handleToggleOnlyFavorites = propOnToggleOnlyFavorites
+    ? () => propOnToggleOnlyFavorites(!onlyFavorites)
+    : () => dispatch(setOnlyFavorites(!onlyFavorites));
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 15;
@@ -60,6 +77,9 @@ export const FilteredList = ({
       <FilterToolbar
         title={title}
         totalLoaded={countries.length}
+        favoritesCount={favorites.length}
+        onlyFavorites={onlyFavorites}
+        onToggleOnlyFavorites={handleToggleOnlyFavorites}
       />
 
       {isLoading && (
@@ -85,7 +105,9 @@ export const FilteredList = ({
 
       {!isLoading && !error && countries.length === 0 && (
         <div className="py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
-          Дані відсутні або список країн порожній.
+          {onlyFavorites
+            ? 'Список обраних порожній або жодна країна не відповідає активним фільтрам.'
+            : 'Дані відсутні або список країн порожній.'}
         </div>
       )}
 
@@ -96,6 +118,8 @@ export const FilteredList = ({
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
           />
           <Pagination
             currentPage={safePage}

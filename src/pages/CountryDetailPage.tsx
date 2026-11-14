@@ -3,9 +3,13 @@ import { Link, useParams } from 'react-router';
 import { fetchCountryDetails } from '../services/diseaseApi';
 import { useFetch } from '../hooks/useFetch';
 import { Button } from '../components/common/Button';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { selectFavorites, toggleFavorite } from '../store/slices/dashboardSlice';
 
 export function CountryDetailPage() {
   const { code } = useParams<{ code: string }>();
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector(selectFavorites);
 
   const fetcher = useCallback(async (signal?: AbortSignal) => {
     if (!code) {
@@ -15,6 +19,7 @@ export function CountryDetailPage() {
   }, [code]);
 
   const { data: country, loading, error, refetch } = useFetch(fetcher);
+  const isFavorite = country ? favorites.includes(country.id) : false;
 
   useEffect(() => {
     if (country) {
@@ -36,6 +41,18 @@ export function CountryDetailPage() {
         >
           ← Назад до дашборду
         </Link>
+
+        {country && (
+          <Button
+            type="button"
+            variant={isFavorite ? 'primary' : 'outline'}
+            onClick={() => dispatch(toggleFavorite(country.id))}
+            className="text-xs px-3 py-1.5 flex items-center gap-1.5"
+          >
+            <span className="text-amber-400 font-bold">{isFavorite ? '★' : '☆'}</span>
+            <span>{isFavorite ? 'В обраному' : 'Додати в обране'}</span>
+          </Button>
+        )}
       </div>
 
       {loading && (
