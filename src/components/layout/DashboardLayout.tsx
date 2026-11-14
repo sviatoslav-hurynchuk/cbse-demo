@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Outlet } from 'react-router';
 import { Header } from './Header';
+import { useAppSelector } from '../../store/hooks';
 
 export interface DashboardLayoutProps {
   title?: string;
@@ -10,9 +11,22 @@ export interface DashboardLayoutProps {
 
 export const DashboardLayout = ({
   title = 'disease.sh dashboard',
-  subtitle = 'Lab04',
+  subtitle = 'Lab05',
   children,
 }: DashboardLayoutProps) => {
+  const theme = useAppSelector((state) => state.theme.theme);
+
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (root) {
+      if (theme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  }, [theme]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col transition-colors duration-200">
       <Header title={title} subtitle={subtitle} />
