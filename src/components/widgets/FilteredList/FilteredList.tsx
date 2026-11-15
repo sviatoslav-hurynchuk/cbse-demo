@@ -1,10 +1,22 @@
 import { useState } from 'react';
-import type { FilteredListProps, SortDirection, SortField } from './types';
+import type { FilteredListProps, SortField } from './types';
 import { FilterToolbar } from './FilterToolbar';
 import { CountryTable } from './CountryTable';
 import { Pagination } from './Pagination';
 import { Button } from '../../common/Button';
-import { useOptionalDashboard } from '../../../context';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import {
+  selectFilteredCountries,
+  selectIsLoading,
+  selectError,
+  selectFilters,
+  selectFavorites,
+  selectOnlyFavorites,
+  setTableSort,
+  toggleFavorite,
+  setOnlyFavorites,
+  fetchCountriesThunk,
+} from '../../../store/slices/dashboardSlice';
 
 export const FilteredList = ({
   title = 'Статистика по країнах (disease.sh)',
@@ -15,60 +27,59 @@ export const FilteredList = ({
   sortField: propSortField,
   sortDirection: propSortDirection,
   onSort: propOnSort,
+  favorites: propFavorites,
+  onToggleFavorite: propOnToggleFavorite,
+  onlyFavorites: propOnlyFavorites,
+  onToggleOnlyFavorites: propOnToggleOnlyFavorites,
 }: Partial<FilteredListProps> = {}) => {
-  const context = useOptionalDashboard();
+  const dispatch = useAppDispatch();
 
-  const countries = propCountries ?? context?.sortedCountries ?? [];
-  const isLoading = propIsLoading ?? context?.isLoading ?? false;
-  const error = propError ?? context?.error ?? null;
-  const onRetry = propOnRetry ?? context?.loadCountries;
-  const controlledSortField = propSortField ?? context?.filters.sortBy;
-  const controlledSortDirection = propSortDirection ?? context?.filters.sortDirection;
-  const controlledSort = propOnSort ?? context?.handleTableSort;
+  const reduxCountries = useAppSelector(selectFilteredCountries);
+  const reduxIsLoading = useAppSelector(selectIsLoading);
+  const reduxError = useAppSelector(selectError);
+  const reduxFilters = useAppSelector(selectFilters);
+  const reduxFavorites = useAppSelector(selectFavorites);
+  const reduxOnlyFavorites = useAppSelector(selectOnlyFavorites);
 
-  const [internalSortField, setInternalSortField] = useState<SortField>('cases');
-  const [internalSortDirection, setInternalSortDirection] = useState<SortDirection>('desc');
+  const countries = propCountries ?? reduxCountries;
+  const isLoading = propIsLoading ?? reduxIsLoading;
+  const error = propError ?? reduxError;
+  const onRetry = propOnRetry ?? (() => dispatch(fetchCountriesThunk()));
+  const sortField = propSortField ?? reduxFilters.sortBy;
+  const sortDirection = propSortDirection ?? reduxFilters.sortDirection;
+  const favorites = propFavorites ?? reduxFavorites;
+  const onlyFavorites = propOnlyFavorites ?? reduxOnlyFavorites;
+
+  const handleToggleFavorite = propOnToggleFavorite ?? ((id: string) => dispatch(toggleFavorite(id)));
+  const handleToggleOnlyFavorites = propOnToggleOnlyFavorites
+    ? () => propOnToggleOnlyFavorites(!onlyFavorites)
+    : () => dispatch(setOnlyFavorites(!onlyFavorites));
+
   const [currentPage, setCurrentPage] = useState<number>(1);
-
   const pageSize = 15;
 
-  const sortField = controlledSortField ?? internalSortField;
-  const sortDirection = controlledSortDirection ?? internalSortDirection;
-
   const handleSort = (field: SortField) => {
-    if (controlledSort) {
-      controlledSort(field);
+    if (propOnSort) {
+      propOnSort(field);
     } else {
-      if (internalSortField === field) {
-        setInternalSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-      } else {
-        setInternalSortField(field);
-        setInternalSortDirection('desc');
-      }
+      dispatch(setTableSort(field));
     }
     setCurrentPage(1);
   };
 
-  const sortedCountries = controlledSort
-    ? countries
-    : [...countries].sort((a, b) => {
-        const modifier = sortDirection === 'asc' ? 1 : -1;
-        if (sortField === 'country') {
-          return a.country.localeCompare(b.country) * modifier;
-        }
-        return (a[sortField] - b[sortField]) * modifier;
-      });
-
-  const totalPages = Math.max(1, Math.ceil(sortedCountries.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(countries.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const startIndex = (safePage - 1) * pageSize;
-  const paginatedCountries = sortedCountries.slice(startIndex, startIndex + pageSize);
+  const paginatedCountries = countries.slice(startIndex, startIndex + pageSize);
 
   return (
     <div className="p-5 rounded-xl border border-gray-200 dark:border-gray-800 shadow-xs bg-white dark:bg-gray-900 transition-colors">
       <FilterToolbar
         title={title}
-        totalLoaded={sortedCountries.length}
+        totalLoaded={countries.length}
+        favoritesCount={favorites.length}
+        onlyFavorites={onlyFavorites}
+        onToggleOnlyFavorites={handleToggleOnlyFavorites}
       />
 
       {isLoading && (
@@ -94,7 +105,9 @@ export const FilteredList = ({
 
       {!isLoading && !error && countries.length === 0 && (
         <div className="py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
-          Дані відсутні або список країн порожній.
+          {onlyFavorites
+            ? 'Список обраних порожній або жодна країна не відповідає активним фільтрам.'
+            : 'Дані відсутні або список країн порожній.'}
         </div>
       )}
 
@@ -105,12 +118,14 @@ export const FilteredList = ({
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
           />
           <Pagination
             currentPage={safePage}
             totalPages={totalPages}
             pageSize={pageSize}
-            totalItems={sortedCountries.length}
+            totalItems={countries.length}
             onPageChange={setCurrentPage}
           />
         </>

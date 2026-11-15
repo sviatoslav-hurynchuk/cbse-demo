@@ -1,7 +1,14 @@
 import type { ChangeEvent } from 'react';
 import type { FilterFormProps, FilterFormValues, FilterFormErrors } from './types';
 import { Button } from '../../common/Button';
-import { useOptionalDashboard } from '../../../context';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import {
+  selectFilters,
+  selectValidationErrors,
+  selectAvailableContinents,
+  setFilter,
+  resetFilters,
+} from '../../../store/slices/dashboardSlice';
 
 export const FilterForm = ({
   values: propValues,
@@ -10,24 +17,36 @@ export const FilterForm = ({
   onChange: propOnChange,
   onReset: propOnReset,
 }: Partial<FilterFormProps> = {}) => {
-  const context = useOptionalDashboard();
+  const dispatch = useAppDispatch();
 
-  const values = propValues ?? context?.filters ?? {
-    search: '',
-    continent: 'Всі',
-    sortBy: 'cases',
-    sortDirection: 'desc',
-    minCases: 0,
+  const reduxValues = useAppSelector(selectFilters);
+  const reduxErrors = useAppSelector(selectValidationErrors);
+  const reduxContinents = useAppSelector(selectAvailableContinents);
+
+  const values = propValues ?? reduxValues;
+  const errors: FilterFormErrors | undefined = propErrors ?? reduxErrors;
+  const continents = propContinents ?? reduxContinents;
+
+  const handleFieldChange = <K extends keyof FilterFormValues>(field: K, value: FilterFormValues[K]) => {
+    if (propOnChange) {
+      propOnChange(field, value);
+    } else {
+      dispatch(setFilter({ field, value }));
+    }
   };
-  const errors: FilterFormErrors | undefined = propErrors ?? context?.errors;
-  const continents = propContinents ?? context?.availableContinents ?? ['Всі'];
-  const onChange = propOnChange ?? context?.handleFilterChange ?? (() => {});
-  const onReset = propOnReset ?? context?.handleResetFilters ?? (() => {});
+
+  const handleReset = () => {
+    if (propOnReset) {
+      propOnReset();
+    } else {
+      dispatch(resetFilters());
+    }
+  };
 
   function handleInputChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value, type } = e.target;
     const parsed = type === 'number' || name === 'minCases' ? Number(value) : value;
-    onChange(name as keyof FilterFormValues, parsed);
+    handleFieldChange(name as keyof FilterFormValues, parsed);
   }
 
   return (
@@ -42,7 +61,7 @@ export const FilterForm = ({
         <Button
           type="button"
           variant="outline"
-          onClick={onReset}
+          onClick={handleReset}
           className="text-xs px-3 py-1.5 shrink-0"
         >
           Скинути фільтри

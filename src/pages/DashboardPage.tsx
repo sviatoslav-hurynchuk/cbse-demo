@@ -1,15 +1,43 @@
+import { useEffect } from 'react';
 import {
   Counter,
   FilteredList,
   FilterForm,
   KpiCard,
   Toggle,
+  EpidemicChart,
 } from '../components/widgets';
-import { useDashboard } from '../context';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  fetchCountriesThunk,
+  selectCountries,
+  selectFilters,
+  selectKpiCards,
+  selectOnlyFavorites,
+} from '../store/slices/dashboardSlice';
 import type { EpidemicKpi } from '../types/dashboard';
 
 export function DashboardPage() {
-  const { kpiCards, isFiltered } = useDashboard();
+  const dispatch = useAppDispatch();
+  const countries = useAppSelector(selectCountries);
+  const kpiCards = useAppSelector(selectKpiCards);
+  const filters = useAppSelector(selectFilters);
+  const onlyFavorites = useAppSelector(selectOnlyFavorites);
+
+  useEffect(() => {
+    if (countries.length === 0) {
+      const promise = dispatch(fetchCountriesThunk());
+      return () => {
+        promise.abort();
+      };
+    }
+  }, [dispatch, countries.length]);
+
+  const isFiltered =
+    filters.continent !== 'Всі' ||
+    filters.minCases > 0 ||
+    filters.search.trim() !== '' ||
+    onlyFavorites;
 
   return (
     <>
@@ -33,6 +61,13 @@ export function DashboardPage() {
 
       <section>
         <FilterForm />
+      </section>
+
+      <section>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+          Візуалізація розподілу показників
+        </h2>
+        <EpidemicChart />
       </section>
 
       <section>
