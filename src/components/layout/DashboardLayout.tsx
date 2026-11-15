@@ -25,6 +25,7 @@ export const DashboardLayout = ({
         root.classList.remove('dark');
       }
     }
+    localStorage.setItem('cop_theme', theme);
   }, [theme]);
 
   return (

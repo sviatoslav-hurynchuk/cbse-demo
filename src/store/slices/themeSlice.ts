@@ -14,18 +14,6 @@ function getInitialTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-function syncRootTheme(theme: Theme) {
-  const root = document.getElementById('root');
-  if (root) {
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }
-  localStorage.setItem('cop_theme', theme);
-}
-
 const initialState: ThemeState = {
   theme: getInitialTheme(),
 };
@@ -36,12 +24,9 @@ export const themeSlice = createSlice({
   reducers: {
     setTheme: (state, action: PayloadAction<Theme>) => {
       state.theme = action.payload;
-      syncRootTheme(action.payload);
     },
     toggleTheme: (state) => {
-      const nextTheme = state.theme === 'light' ? 'dark' : 'light';
-      state.theme = nextTheme;
-      syncRootTheme(nextTheme);
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
     },
   },
 });
