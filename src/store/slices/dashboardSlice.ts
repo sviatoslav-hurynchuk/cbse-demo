@@ -5,13 +5,14 @@ import type { FilterFormValues } from '../../components/widgets/FilterForm/types
 import type { SortField } from '../../components/widgets/FilteredList/types';
 import { validateFilters } from '../../components/widgets/FilterForm/validation';
 
-export type ChartType = 'bar' | 'line';
+export type ChartType = 'grouped' | 'stacked';
 
 export interface ChartDataItem {
   name: string;
   cases: number;
   recovered: number;
   deaths: number;
+  active: number;
 }
 
 export interface DashboardState {
@@ -56,7 +57,7 @@ const initialState: DashboardState = {
   filters: initialFilters,
   onlyFavorites: false,
   favorites: getInitialFavorites(),
-  chartType: 'bar',
+  chartType: 'grouped',
 };
 
 export const fetchCountriesThunk = createAsyncThunk<CountryEpidemicStat[]>(
@@ -253,6 +254,7 @@ export const selectChartData = createSelector(
       cases: c.cases,
       recovered: c.recovered,
       deaths: c.deaths,
+      active: Math.max(0, c.cases - c.recovered - c.deaths),
     }));
   }
 );

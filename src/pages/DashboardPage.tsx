@@ -5,6 +5,7 @@ import {
   FilterForm,
   KpiCard,
   Toggle,
+  EpidemicChart,
 } from '../components/widgets';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
@@ -60,6 +61,13 @@ export function DashboardPage() {
 
       <section>
         <FilterForm />
+      </section>
+
+      <section>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-3">
+          Візуалізація розподілу показників
+        </h2>
+        <EpidemicChart />
       </section>
 
       <section>
