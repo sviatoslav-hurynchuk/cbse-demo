@@ -42,14 +42,6 @@ function getInitialFavorites(): string[] {
   }
 }
 
-function persistFavorites(favorites: string[]) {
-  try {
-    localStorage.setItem('cop_favorites', JSON.stringify(favorites));
-  } catch {
-    // LocalStorage quota or access edge-cases
-  }
-}
-
 const initialState: DashboardState = {
   countries: [],
   isLoading: false,
@@ -98,7 +90,6 @@ export const dashboardSlice = createSlice({
       } else {
         state.favorites.push(id);
       }
-      persistFavorites(state.favorites);
     },
     setOnlyFavorites: (state, action: PayloadAction<boolean>) => {
       state.onlyFavorites = action.payload;
@@ -142,7 +133,6 @@ interface StateWithDashboard {
   dashboard: DashboardState;
 }
 
-export const selectDashboardState = (state: StateWithDashboard) => state.dashboard;
 export const selectCountries = (state: StateWithDashboard) => state.dashboard.countries;
 export const selectIsLoading = (state: StateWithDashboard) => state.dashboard.isLoading;
 export const selectError = (state: StateWithDashboard) => state.dashboard.error;

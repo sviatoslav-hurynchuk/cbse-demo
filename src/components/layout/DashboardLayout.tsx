@@ -15,6 +15,7 @@ export const DashboardLayout = ({
   children,
 }: DashboardLayoutProps) => {
   const theme = useAppSelector((state) => state.theme.theme);
+  const favorites = useAppSelector((state) => state.dashboard.favorites);
 
   useEffect(() => {
     const root = document.getElementById('root');
@@ -27,6 +28,14 @@ export const DashboardLayout = ({
     }
     localStorage.setItem('cop_theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cop_favorites', JSON.stringify(favorites));
+    } catch {
+      // LocalStorage quota edge-case
+    }
+  }, [favorites]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col transition-colors duration-200">
